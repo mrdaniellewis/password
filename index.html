@@ -1,167 +1,407 @@
 <!DOCTYPE HTML>
+<html>
 <title>Password Hasher</title>
 <meta charset='utf-8'>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+
 body {
-	font-family: sans-serif;
-	display: flex;
-	flex-flow: column;
-	align-items: center;
+    font: 1.2em/1.5 sans-serif;
+    margin: auto;
+    max-width: 20em;
+    padding: 1em;
 }
 
+input, button {
+    font: inherit;
+}
+
+datalist {
+    display: none !important;
+}
+
+
 #hash-word {
-	font-family: monospace;
+    font-family: monospace;
 }
 
 fieldset {
-	border: none;
-	background: #eee;
-	margin-top: .5em;
-	display: flex;
-	flex-flow: column;
-}
-
-legend {
-	background: #eee;
-	padding: 1px;
-}
-
-fieldset .buttons {
-	display: flex;
-	padding-top: .5em;
-}
-
-fieldset .buttons > button {
-	flex: 1 auto;
+    margin: 1em 0 0 0;
+    border-color: #eee;
+    padding-left: .5em;
+    padding-right: .5em;
 }
 
 fieldset > ul {
-	margin: 0;
-	padding: 0;
-	list-style: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
+
+input[type=text], input[type=password] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: .2em;
+    line-height: 1.2;
+}
+
+input[type=range] {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+input[type="range"]::-moz-range-track {
+    background-image:linear-gradient(to right, black 1px, transparent 1px);
+    /*  Default thumb size is 1em with a 0.1em border. 
+        The background needs to start the thumb radius (.6em) - tick radius (.5px) in and end .6em short 
+    */
+    background-size: calc( ( 100% - 1.2em ) / 11 ) 40px;
+    background-position: calc( .6em - .5px );
+}
+
+button {
+    box-sizing: border-box;
+    width: 100%;
+    cursor: pointer;
+}
+
+.row {
+    display: block;
+    margin: 1em 0;
+}
+
+.buttons {
+    display: flex;
+}
+
+
+.buttons > button, .buttons > * {
+    width: 50%;
+    flex: 1 auto;
+}
+
 
 fieldset.size > ul {
-	-webkit-columns: 2;
-	-moz-columns: 2;
-	columns: 2;
+    -webkit-columns: 3;
+    -moz-columns: 3;
+    columns: 3;
 }
+
+.hide {
+    display: none;
+}
+
+.no-border {
+    border: none;
+    padding: 0;
+}
+
+.no-border > legend {
+    padding: 0;
+    width: 100%;
+}
+
+[aria-expanded=false]:before {
+    content: "► ";
+}
+
+[aria-expanded=true]:before {
+    content: "▼ ";
+}
+
+.star:after {
+    content: " ★";
+}
+
+.range-list__min {
+    float: left;
+    font-size: .8em;
+    margin-top: -.5em;
+}
+
+.range-list__max {
+    float: right;
+    font-size: .8em;
+    text-align: right;
+    margin-top: -.5em;
+}
+
 </style>
 
-<form>
-	<fieldset>
-		<legend>Site Tag</legend>
-		<input type=text id="site-tag" autofocus>
-	</fieldset>
-	<fieldset>
-		<legend>Master Key</legend>
-		<input id="master-key" type="password">
-	</fieldset>
-	<fieldset>
-		<legend>Hash Word</legend>
-		<input type=text id="hash-word">
-		<div class='buttons'>
-			<button type=button onclick='generatePassword(12)'>Short</button>
-			<button type=button onclick='generatePassword(26)'>Long</button>
-		</div>
-	</fieldset>
-	<details>
-		<summary>More Options</summary>
-		<p><button type=button onclick='generatePassword(8)'>Unsafe 8 Character</button></p>
-		<p><button type=button onclick='generateCustomPassword()'>Generate Custom</button></p>
-		<fieldset>
-			<legend>Requirements</legend>
-			<ul>
-				<li><label><input type="checkbox" id="digit" checked> Digits</label></li>
-				<li><label><input type="checkbox" id="punctuation"> Punctuation</label></li>
-				<li><label><input type="checkbox" id="mixedCase" checked> Mixed Case</label></li>
-			</ul>
-		</fieldset>
-		<fieldset>
-			<legend>Restrictions</legend>
-			<ul>
-				<li><label><input type="checkbox" id="noSpecial"> No Special</label></li>
-				<li><label><input type="checkbox" id="digitsOnly"> Digits Only</label></li>
-			</ul>
-		</fieldset>
-		<fieldset class='size'>
-			<legend>Size</legend>
-			<ul>
-				<li><label><input type=radio name=size value=4> 4</label></li>
-				<li><label><input type=radio name=size value=6> 6</label></li>
-				<li><label><input type=radio name=size value=8 checked> 8</label></li>
-				<li><label><input type=radio name=size value=10> 10</label></li>
-				<li><label><input type=radio name=size value=12> 12</label></li>
-				<li><label><input type=radio name=size value=14> 14</label></li>
-				<li><label><input type=radio name=size value=16> 16</label></li>
-				<li><label><input type=radio name=size value=18> 18</label></li>
-				<li><label><input type=radio name=size value=20> 20</label></li>
-				<li><label><input type=radio name=size value=22> 22</label></li>
-				<li><label><input type=radio name=size value=24> 24</label></li>
-				<li><label><input type=radio name=size value=26> 26</label></li>
-			</ul>
-		</fieldset>
-	</details>
+<form id="form">
+    <label class="row">
+        Master Key
+        <input id="key" type="password" autofocus autocomplete="off" required>
+    </label>
+
+    <label class="row">
+        Site tag
+        <input type=text id="tag" required>
+    </label>
+
+    <button type="submit" id="generate">Generate</button>
+
+    <label class="row">
+        Hash
+        <input type=text id="hash" readonly>
+    </label>
+
+    <fieldset class="no-border">
+        <legend>
+            <button type="button" id="more" aria-expanded="false">More options</button>
+        </legend>
+
+        <div id="details" class="hide">
+
+            <button  type="button" id="reset">Reset</button>
+
+            <div class="buttons">
+
+                <fieldset>
+                    <legend>Requirements</legend>
+                    <ul>
+                        <li><label><input type="checkbox" id="digit" checked> Digits</label></li>
+                        <li><label><input type="checkbox" id="punctuation"> Punctuation</label></li>
+                        <li><label><input type="checkbox" id="mixedCase" checked> Mixed Case</label></li>
+                    </ul>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Restrictions</legend>
+                    <ul>
+                        <li><label><input type="checkbox" id="noSpecial"> No Special</label></li>
+                        <li><label><input type="checkbox" id="digitsOnly"> Digits Only</label></li>
+                    </ul>
+                </fieldset>
+
+            </div>
+
+            <label class="row">
+                Size <output for="size" id="sizeOutput" value="26">26</output>
+                <input type="range" id="size" min="4" max="26" value="26" step="2" oninput="this.form.sizeOutput.value = this.value" list="steplist">
+                <div class="range-list">
+                    <span class="range-list__min">4</span>
+                    <span class="range-list__max">26</span>
+                </div>
+                <datalist id="steplist">
+                    <option>4
+                    <option>6
+                    <option>8
+                    <option>10
+                    <option>12
+                    <option>14
+                    <option>16
+                    <option>18
+                    <option>20
+                    <option>22
+                    <option>24
+                    <option>26
+                </datalist>
+
+            </label>
+            
+        </div>
+        
+
+    </fieldset>
+    
 </form>
 
 <script>
-function findAll(sel) { return [].slice.call(document.querySelectorAll(sel)); }
-function find(sel) { return document.querySelector(sel); }
 
-function validate(form) {
-	return find('#site-tag').value && find('#master-key').value;
-}
+( function() {
 
-function generatePassword(len) {
-	var hashword = find('#hash-word');
-	hashword.value = PassHashCommon.generateHashWord(
-		find('#site-tag').value,
-		find('#master-key').value,
-		len,true,false,true,true,false
-	);
-	hashword.select();
-	hashword.focus();
-}
+    var localStorageKey = 'db329347-75fb-4d26-8f4e-6b887f2f08a9';
+    var elements = document.getElementById( 'form' ).elements;
 
-function update() {
-	var noSpecial = find("#noSpecial").checked;
-	var digitsOnly = find("#digitsOnly").checked;
-	find('#punctuation').disabled = noSpecial || digitsOnly;
-	find("#digit"      ).disabled = digitsOnly;
-	find("#mixedCase"  ).disabled = digitsOnly;
-	find("#noSpecial"  ).disabled = digitsOnly;
-}
+    var settings = {
 
-function generateCustomPassword() {
-	var siteTag   = find('#site-tag');
-	var masterKey = find('#master-key');
-	var hashWord  = find('#hash-word');
-	var submit    = find('#submit');
-	var requireDigit       = find("#digit").checked;
-	var requirePunctuation = find("#punctuation").checked;
-	var requireMixedCase   = find("#mixedCase").checked;
-	var restrictSpecial    = find("#noSpecial").checked;
-	var restrictDigits     = find("#digitsOnly").checked;
-	var hashWordSize = Number(find("input[name='size']:checked").value);
-	hashWord.value = PassHashCommon.generateHashWord(
-	                   siteTag.value,
-	                   masterKey.value,
-	                   hashWordSize,
-	                   requireDigit,
-	                   requirePunctuation,
-	                   requireMixedCase,
-	                   restrictSpecial,
-	                   restrictDigits);
-	hashWord.select();
-	hashWord.focus();
-}
+        get tag() {
+            return elements.tag.value;
+        },
 
-window.onload = function() {
-	findAll("input[type='radio'], input[type='checkbox']").forEach(function(el){
-		el.onclick = update;
-	});
-};
+        get size() {
+            return parseInt( elements.size.value, 10 );
+        },
+
+        set size( value ) {
+            elements.size.value = value;
+        },
+
+        get requireDigit() {
+            return elements.digit.checked;
+        },
+
+        set requireDigit( value ) {
+            elements.digit.checked = value;
+        },
+
+        get requirePunctuation() {
+            return elements.punctuation.checked;
+        },
+
+        set requirePunctuation( value ) {
+            elements.punctuation.checked = value;
+        },
+
+        get requireMixedCase() {
+            return elements.mixedCase.checked;
+        },
+
+        set requireMixedCase( value ) {
+            elements.mixedCase.checked = true;
+        },
+
+        get requireNoSpecial() {
+            return elements.noSpecial.checked;
+        },
+
+        set requireNoSpecial( value ) {
+            elements.punctuation.disabled = value;
+            elements.noSpecial.checked = value;
+        },
+
+        get requireDigitsOnly() {
+            return elements.digitsOnly.checked;
+        },
+
+        set requireDigitsOnly( value ) {
+            elements.digit.disabled = value;
+            elements.punctuation.disabled = value;
+            elements.mixedCase.disabled = value;
+            elements.noSpecial.disabled = value;
+            elements.digitsOnly.checked = value;
+        },
+
+        reset: function() {
+            this.size = elements.size.defaultValue;
+            this.requireDigit = elements.digit.defaultChecked;
+            this.requirePunctuation = elements.punctuation.defaultChecked;
+            this.requireMixedCase = elements.mixedCase.defaultChecked;
+            this.requireNoSpecial = elements.noSpecial.defaultChecked;
+            this.requireDigitsOnly = elements.digitsOnly.defaultChecked;
+        },
+
+        isDefault: function() {
+            return this.size == elements.size.defaultValue
+                && this.requireDigit === elements.digit.defaultChecked
+                && this.requirePunctuation === elements.punctuation.defaultChecked
+                && this.requireMixedCase === elements.mixedCase.defaultChecked
+                && this.requireNoSpecial === elements.noSpecial.defaultChecked
+                && this.requireDigitsOnly === elements.digitsOnly.defaultChecked;
+
+        }
+
+    };
+
+    function saveSettings() {
+
+        var store = {};
+        try {
+            store = JSON.parse( localStorage.getItem( localStorageKey ) || '{}' );
+        } catch ( e ) {
+            // Ignore
+        }
+        
+        store[ settings.tag ] = settings;
+
+        try {
+            localStorage.setItem( localStorageKey, JSON.stringify( store ) );
+        } catch ( e ) {
+            // Ignore
+        }
+    }
+
+    function loadSettings( tag ) {
+
+        console.log( 'load', tag );
+
+        var store = {};
+        try {
+            store = JSON.parse( localStorage.getItem( localStorageKey ) || '{}' );
+        } catch ( e ) {
+            // Ignore
+        }
+
+        var item = store[ tag ];
+
+        if ( !item ) {
+            return;
+        }
+
+        for ( var i in item ) {
+            settings[i] = item[i];
+        }
+
+    }
+
+    var $hash = elements.hash;
+
+    form
+        .addEventListener( 'submit', function( e ) {
+            
+            e.preventDefault();
+
+            var key = elements.key.value;
+
+            $hash.value = PassHashCommon.generateHashWord(
+                settings.tag,
+                key,
+                settings.size,
+                settings.digit,
+                settings.requirePunctuation,
+                settings.requireMixedCase,
+                settings.requireNoSpecial,
+                settings.requireDigitsOnly
+            );
+
+            $hash.setSelectionRange( 0, $hash.value.length );
+            $hash.focus();
+            saveSettings();
+
+        } );
+
+
+    elements.digitsOnly
+        .addEventListener( 'change', function() {
+            settings.requireDigitsOnly = this.checked;
+        } );
+
+    elements.noSpecial
+        .addEventListener( 'change', function() {
+            settings.requireNoSpecial = this.checked;
+        } );
+
+    elements.reset
+        .addEventListener( 'click', function() {
+            settings.reset();
+        } );
+
+    elements.tag
+        .addEventListener( 'change', function() {
+            loadSettings( this.value );
+            if ( !settings.isDefault() ) {
+                toggleMore( true );
+            }
+        } );
+
+    function toggleMore( force ) {
+        var $hide = document.getElementById( 'details' );
+        if ( force === undefined ) {
+            force = $hide.classList.contains( 'hide' );
+        }
+        $hide.classList.toggle( 'hide', !force );
+        elements.more.setAttribute( 'aria-expanded', force );
+    }
+
+    elements.more
+        .addEventListener( 'click', function() {
+            toggleMore();
+        } );
+
+}() );
+
 </script>
 
 <script>
@@ -198,7 +438,7 @@ function str_hmac_sha1(key, data){ return binb2str(core_hmac_sha1(key, data));}
  */
 function sha1_vm_test()
 {
-	return hex_sha1("abc") == "a9993e364706816aba3e25717850c26c9cd0d89d";
+    return hex_sha1("abc") == "a9993e364706816aba3e25717850c26c9cd0d89d";
 }
 
 /*
@@ -206,51 +446,51 @@ function sha1_vm_test()
  */
 function core_sha1(x, len)
 {
-	/* append padding */
-	/* SC - Get rid of warning */
-	var i = (len >> 5);
-	if (x[i] == undefined)
-			x[i]  = 0x80 << (24 - len % 32);
-	else
-			x[i] |= 0x80 << (24 - len % 32);
-	/*x[len >> 5] |= 0x80 << (24 - len % 32);*/
-	x[((len + 64 >> 9) << 4) + 15] = len;
+    /* append padding */
+    /* SC - Get rid of warning */
+    var i = (len >> 5);
+    if (x[i] == undefined)
+            x[i]  = 0x80 << (24 - len % 32);
+    else
+            x[i] |= 0x80 << (24 - len % 32);
+    /*x[len >> 5] |= 0x80 << (24 - len % 32);*/
+    x[((len + 64 >> 9) << 4) + 15] = len;
 
-	var w = Array(80);
-	var a =  1732584193;
-	var b = -271733879;
-	var c = -1732584194;
-	var d =  271733878;
-	var e = -1009589776;
+    var w = Array(80);
+    var a =  1732584193;
+    var b = -271733879;
+    var c = -1732584194;
+    var d =  271733878;
+    var e = -1009589776;
 
-	for(var i = 0; i < x.length; i += 16)
-	{
-		var olda = a;
-		var oldb = b;
-		var oldc = c;
-		var oldd = d;
-		var olde = e;
+    for(var i = 0; i < x.length; i += 16)
+    {
+        var olda = a;
+        var oldb = b;
+        var oldc = c;
+        var oldd = d;
+        var olde = e;
 
-		for(var j = 0; j < 80; j++)
-		{
-			if(j < 16) w[j] = x[i + j];
-			else w[j] = rol(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1);
-			var t = safe_add(safe_add(rol(a, 5), sha1_ft(j, b, c, d)),
-											 safe_add(safe_add(e, w[j]), sha1_kt(j)));
-			e = d;
-			d = c;
-			c = rol(b, 30);
-			b = a;
-			a = t;
-		}
+        for(var j = 0; j < 80; j++)
+        {
+            if(j < 16) w[j] = x[i + j];
+            else w[j] = rol(w[j-3] ^ w[j-8] ^ w[j-14] ^ w[j-16], 1);
+            var t = safe_add(safe_add(rol(a, 5), sha1_ft(j, b, c, d)),
+                                             safe_add(safe_add(e, w[j]), sha1_kt(j)));
+            e = d;
+            d = c;
+            c = rol(b, 30);
+            b = a;
+            a = t;
+        }
 
-		a = safe_add(a, olda);
-		b = safe_add(b, oldb);
-		c = safe_add(c, oldc);
-		d = safe_add(d, oldd);
-		e = safe_add(e, olde);
-	}
-	return Array(a, b, c, d, e);
+        a = safe_add(a, olda);
+        b = safe_add(b, oldb);
+        c = safe_add(c, oldc);
+        d = safe_add(d, oldd);
+        e = safe_add(e, olde);
+    }
+    return Array(a, b, c, d, e);
 
 }
 
@@ -260,10 +500,10 @@ function core_sha1(x, len)
  */
 function sha1_ft(t, b, c, d)
 {
-	if(t < 20) return (b & c) | ((~b) & d);
-	if(t < 40) return b ^ c ^ d;
-	if(t < 60) return (b & c) | (b & d) | (c & d);
-	return b ^ c ^ d;
+    if(t < 20) return (b & c) | ((~b) & d);
+    if(t < 40) return b ^ c ^ d;
+    if(t < 60) return (b & c) | (b & d) | (c & d);
+    return b ^ c ^ d;
 }
 
 /*
@@ -271,8 +511,8 @@ function sha1_ft(t, b, c, d)
  */
 function sha1_kt(t)
 {
-	return (t < 20) ?  1518500249 : (t < 40) ?  1859775393 :
-				 (t < 60) ? -1894007588 : -899497514;
+    return (t < 20) ?  1518500249 : (t < 40) ?  1859775393 :
+                 (t < 60) ? -1894007588 : -899497514;
 }
 
 /*
@@ -280,22 +520,22 @@ function sha1_kt(t)
  */
 function core_hmac_sha1(key, data)
 {
-	var bkey = str2binb(key);
-	if(bkey.length > 16) bkey = core_sha1(bkey, key.length * chrsz);
+    var bkey = str2binb(key);
+    if(bkey.length > 16) bkey = core_sha1(bkey, key.length * chrsz);
 
-	var ipad = Array(16), opad = Array(16);
-	for(var i = 0; i < 16; i++)
-	{
-		/* SC - Get rid of warning */
-		var k = (bkey[i] != undefined ? bkey[i] : 0);
-		ipad[i] = k ^ 0x36363636;
-		opad[i] = k ^ 0x5C5C5C5C;
+    var ipad = Array(16), opad = Array(16);
+    for(var i = 0; i < 16; i++)
+    {
+        /* SC - Get rid of warning */
+        var k = (bkey[i] != undefined ? bkey[i] : 0);
+        ipad[i] = k ^ 0x36363636;
+        opad[i] = k ^ 0x5C5C5C5C;
 /*  ipad[i] = bkey[i] ^ 0x36363636;
-		opad[i] = bkey[i] ^ 0x5C5C5C5C;*/
-	}
+        opad[i] = bkey[i] ^ 0x5C5C5C5C;*/
+    }
 
-	var hash = core_sha1(ipad.concat(str2binb(data)), 512 + data.length * chrsz);
-	return core_sha1(opad.concat(hash), 512 + 160);
+    var hash = core_sha1(ipad.concat(str2binb(data)), 512 + data.length * chrsz);
+    return core_sha1(opad.concat(hash), 512 + 160);
 }
 
 /*
@@ -304,9 +544,9 @@ function core_hmac_sha1(key, data)
  */
 function safe_add(x, y)
 {
-	var lsw = (x & 0xFFFF) + (y & 0xFFFF);
-	var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-	return (msw << 16) | (lsw & 0xFFFF);
+    var lsw = (x & 0xFFFF) + (y & 0xFFFF);
+    var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+    return (msw << 16) | (lsw & 0xFFFF);
 }
 
 /*
@@ -314,7 +554,7 @@ function safe_add(x, y)
  */
 function rol(num, cnt)
 {
-	return (num << cnt) | (num >>> (32 - cnt));
+    return (num << cnt) | (num >>> (32 - cnt));
 }
 
 /*
@@ -323,19 +563,19 @@ function rol(num, cnt)
  */
 function str2binb(str)
 {
-	var bin = Array();
-	var mask = (1 << chrsz) - 1;
-	/* SC - Get rid of warnings */
-	for(var i = 0; i < str.length * chrsz; i += chrsz)
-	{
-		if (bin[i>>5] != undefined)
-			bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (32 - chrsz - i%32);
-		else
-			bin[i>>5]  = (str.charCodeAt(i / chrsz) & mask) << (32 - chrsz - i%32);
-	}
-	/*for(var i = 0; i < str.length * chrsz; i += chrsz)
-			bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (32 - chrsz - i%32);*/
-	return bin;
+    var bin = Array();
+    var mask = (1 << chrsz) - 1;
+    /* SC - Get rid of warnings */
+    for(var i = 0; i < str.length * chrsz; i += chrsz)
+    {
+        if (bin[i>>5] != undefined)
+            bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (32 - chrsz - i%32);
+        else
+            bin[i>>5]  = (str.charCodeAt(i / chrsz) & mask) << (32 - chrsz - i%32);
+    }
+    /*for(var i = 0; i < str.length * chrsz; i += chrsz)
+            bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (32 - chrsz - i%32);*/
+    return bin;
 }
 
 /*
@@ -343,11 +583,11 @@ function str2binb(str)
  */
 function binb2str(bin)
 {
-	var str = "";
-	var mask = (1 << chrsz) - 1;
-	for(var i = 0; i < bin.length * 32; i += chrsz)
-		str += String.fromCharCode((bin[i>>5] >>> (32 - chrsz - i%32)) & mask);
-	return str;
+    var str = "";
+    var mask = (1 << chrsz) - 1;
+    for(var i = 0; i < bin.length * 32; i += chrsz)
+        str += String.fromCharCode((bin[i>>5] >>> (32 - chrsz - i%32)) & mask);
+    return str;
 }
 
 /*
@@ -355,14 +595,14 @@ function binb2str(bin)
  */
 function binb2hex(binarray)
 {
-	var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
-	var str = "";
-	for(var i = 0; i < binarray.length * 4; i++)
-	{
-		str += hex_tab.charAt((binarray[i>>2] >> ((3 - i%4)*8+4)) & 0xF) +
-					 hex_tab.charAt((binarray[i>>2] >> ((3 - i%4)*8  )) & 0xF);
-	}
-	return str;
+    var hex_tab = hexcase ? "0123456789ABCDEF" : "0123456789abcdef";
+    var str = "";
+    for(var i = 0; i < binarray.length * 4; i++)
+    {
+        str += hex_tab.charAt((binarray[i>>2] >> ((3 - i%4)*8+4)) & 0xF) +
+                     hex_tab.charAt((binarray[i>>2] >> ((3 - i%4)*8  )) & 0xF);
+    }
+    return str;
 }
 
 /*
@@ -370,25 +610,25 @@ function binb2hex(binarray)
  */
 function binb2b64(binarray)
 {
-	var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	var str = "";
-	for(var i = 0; i < binarray.length * 4; i += 3)
-	{
-		/* SC - Get rid of warning */
-		var b1 = binarray[i   >> 2] != undefined ? ((binarray[i   >> 2] >> 8 * (3 -  i   %4)) & 0xFF) << 16 : 0;
-		var b2 = binarray[i+1 >> 2] != undefined ? ((binarray[i+1 >> 2] >> 8 * (3 - (i+1)%4)) & 0xFF) << 8  : 0;
-		var b3 = binarray[i+2 >> 2] != undefined ? ((binarray[i+2 >> 2] >> 8 * (3 - (i+2)%4)) & 0xFF)       : 0;
-		var triplet = b1 | b2 | b3;
-		/*var triplet = (((binarray[i   >> 2] >> 8 * (3 -  i   %4)) & 0xFF) << 16)
-								| (((binarray[i+1 >> 2] >> 8 * (3 - (i+1)%4)) & 0xFF) << 8 )
-								|  ((binarray[i+2 >> 2] >> 8 * (3 - (i+2)%4)) & 0xFF);*/
-		for(var j = 0; j < 4; j++)
-		{
-			if(i * 8 + j * 6 > binarray.length * 32) str += b64pad;
-			else str += tab.charAt((triplet >> 6*(3-j)) & 0x3F);
-		}
-	}
-	return str;
+    var tab = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    var str = "";
+    for(var i = 0; i < binarray.length * 4; i += 3)
+    {
+        /* SC - Get rid of warning */
+        var b1 = binarray[i   >> 2] != undefined ? ((binarray[i   >> 2] >> 8 * (3 -  i   %4)) & 0xFF) << 16 : 0;
+        var b2 = binarray[i+1 >> 2] != undefined ? ((binarray[i+1 >> 2] >> 8 * (3 - (i+1)%4)) & 0xFF) << 8  : 0;
+        var b3 = binarray[i+2 >> 2] != undefined ? ((binarray[i+2 >> 2] >> 8 * (3 - (i+2)%4)) & 0xFF)       : 0;
+        var triplet = b1 | b2 | b3;
+        /*var triplet = (((binarray[i   >> 2] >> 8 * (3 -  i   %4)) & 0xFF) << 16)
+                                | (((binarray[i+1 >> 2] >> 8 * (3 - (i+1)%4)) & 0xFF) << 8 )
+                                |  ((binarray[i+2 >> 2] >> 8 * (3 - (i+2)%4)) & 0xFF);*/
+        for(var j = 0; j < 4; j++)
+        {
+            if(i * 8 + j * 6 > binarray.length * 32) str += b64pad;
+            else str += tab.charAt((triplet >> 6*(3-j)) & 0x3F);
+        }
+    }
+    return str;
 }
 </script>
 
@@ -431,138 +671,138 @@ function binb2b64(binarray)
 var PassHashCommon =
 {
 
-		// IMPORTANT: This function should be changed carefully.  It must be
-		// completely deterministic and consistent between releases.  Otherwise
-		// users would be forced to update their passwords.  In other words, the
-		// algorithm must always be backward-compatible.  It's only acceptable to
-		// violate backward compatibility when new options are used.
-		// SECURITY: The optional adjustments are positioned and calculated based
-		// on the sum of all character codes in the raw hash string.  So it becomes
-		// far more difficult to guess the injected special characters without
-		// knowing the master key.
-		// TODO: Is it ok to assume ASCII is ok for adjustments?
-		generateHashWord: function(
-								siteTag,
-								masterKey,
-								hashWordSize,
-								requireDigit,
-								requirePunctuation,
-								requireMixedCase,
-								restrictSpecial,
-								restrictDigits)
-		{
-				// Start with the SHA1-encrypted master key/site tag.
-				var s = b64_hmac_sha1(masterKey, siteTag);
-				// Use the checksum of all characters as a pseudo-randomizing seed to
-				// avoid making the injected characters easy to guess.  Note that it
-				// isn't random in the sense of not being deterministic (i.e.
-				// repeatable).  Must share the same seed between all injected
-				// characters so that they are guaranteed unique positions based on
-				// their offsets.
-				var sum = 0;
-				for (var i = 0; i < s.length; i++)
-						sum += s.charCodeAt(i);
-				// Restrict digits just does a mod 10 of all the characters
-				if (restrictDigits)
-						s = PassHashCommon.convertToDigits(s, sum, hashWordSize);
-				else
-				{
-						// Inject digit, punctuation, and mixed case as needed.
-						if (requireDigit)
-								s = PassHashCommon.injectSpecialCharacter(s, 0, 4, sum, hashWordSize, 48, 10);
-						if (requirePunctuation && !restrictSpecial)
-								s = PassHashCommon.injectSpecialCharacter(s, 1, 4, sum, hashWordSize, 33, 15);
-						if (requireMixedCase)
-						{
-								s = PassHashCommon.injectSpecialCharacter(s, 2, 4, sum, hashWordSize, 65, 26);
-								s = PassHashCommon.injectSpecialCharacter(s, 3, 4, sum, hashWordSize, 97, 26);
-						}
-						// Strip out special characters as needed.
-						if (restrictSpecial)
-								s = PassHashCommon.removeSpecialCharacters(s, sum, hashWordSize);
-				}
-				// Trim it to size.
-				return s.substr(0, hashWordSize);
-		},
+        // IMPORTANT: This function should be changed carefully.  It must be
+        // completely deterministic and consistent between releases.  Otherwise
+        // users would be forced to update their passwords.  In other words, the
+        // algorithm must always be backward-compatible.  It's only acceptable to
+        // violate backward compatibility when new options are used.
+        // SECURITY: The optional adjustments are positioned and calculated based
+        // on the sum of all character codes in the raw hash string.  So it becomes
+        // far more difficult to guess the injected special characters without
+        // knowing the master key.
+        // TODO: Is it ok to assume ASCII is ok for adjustments?
+        generateHashWord: function(
+                                siteTag,
+                                masterKey,
+                                hashWordSize,
+                                requireDigit,
+                                requirePunctuation,
+                                requireMixedCase,
+                                restrictSpecial,
+                                restrictDigits)
+        {
+                // Start with the SHA1-encrypted master key/site tag.
+                var s = b64_hmac_sha1(masterKey, siteTag);
+                // Use the checksum of all characters as a pseudo-randomizing seed to
+                // avoid making the injected characters easy to guess.  Note that it
+                // isn't random in the sense of not being deterministic (i.e.
+                // repeatable).  Must share the same seed between all injected
+                // characters so that they are guaranteed unique positions based on
+                // their offsets.
+                var sum = 0;
+                for (var i = 0; i < s.length; i++)
+                        sum += s.charCodeAt(i);
+                // Restrict digits just does a mod 10 of all the characters
+                if (restrictDigits)
+                        s = PassHashCommon.convertToDigits(s, sum, hashWordSize);
+                else
+                {
+                        // Inject digit, punctuation, and mixed case as needed.
+                        if (requireDigit)
+                                s = PassHashCommon.injectSpecialCharacter(s, 0, 4, sum, hashWordSize, 48, 10);
+                        if (requirePunctuation && !restrictSpecial)
+                                s = PassHashCommon.injectSpecialCharacter(s, 1, 4, sum, hashWordSize, 33, 15);
+                        if (requireMixedCase)
+                        {
+                                s = PassHashCommon.injectSpecialCharacter(s, 2, 4, sum, hashWordSize, 65, 26);
+                                s = PassHashCommon.injectSpecialCharacter(s, 3, 4, sum, hashWordSize, 97, 26);
+                        }
+                        // Strip out special characters as needed.
+                        if (restrictSpecial)
+                                s = PassHashCommon.removeSpecialCharacters(s, sum, hashWordSize);
+                }
+                // Trim it to size.
+                return s.substr(0, hashWordSize);
+        },
 
-		// This is a very specialized method to inject a character chosen from a
-		// range of character codes into a block at the front of a string if one of
-		// those characters is not already present.
-		// Parameters:
-		//  sInput   = input string
-		//  offset   = offset for position of injected character
-		//  reserved = # of offsets reserved for special characters
-		//  seed     = seed for pseudo-randomizing the position and injected character
-		//  lenOut   = length of head of string that will eventually survive truncation.
-		//  cStart   = character code for first valid injected character.
-		//  cNum     = number of valid character codes starting from cStart.
-		injectSpecialCharacter: function(sInput, offset, reserved, seed, lenOut, cStart, cNum)
-		{
-				var pos0 = seed % lenOut;
-				var pos = (pos0 + offset) % lenOut;
-				// Check if a qualified character is already present
-				// Write the loop so that the reserved block is ignored.
-				for (var i = 0; i < lenOut - reserved; i++)
-				{
-						var i2 = (pos0 + reserved + i) % lenOut
-						var c = sInput.charCodeAt(i2);
-						if (c >= cStart && c < cStart + cNum)
-								return sInput;  // Already present - nothing to do
-				}
-				var sHead   = (pos > 0 ? sInput.substring(0, pos) : "");
-				var sInject = String.fromCharCode(((seed + sInput.charCodeAt(pos)) % cNum) + cStart);
-				var sTail   = (pos + 1 < sInput.length ? sInput.substring(pos+1, sInput.length) : "");
-				return (sHead + sInject + sTail);
-		},
+        // This is a very specialized method to inject a character chosen from a
+        // range of character codes into a block at the front of a string if one of
+        // those characters is not already present.
+        // Parameters:
+        //  sInput   = input string
+        //  offset   = offset for position of injected character
+        //  reserved = # of offsets reserved for special characters
+        //  seed     = seed for pseudo-randomizing the position and injected character
+        //  lenOut   = length of head of string that will eventually survive truncation.
+        //  cStart   = character code for first valid injected character.
+        //  cNum     = number of valid character codes starting from cStart.
+        injectSpecialCharacter: function(sInput, offset, reserved, seed, lenOut, cStart, cNum)
+        {
+                var pos0 = seed % lenOut;
+                var pos = (pos0 + offset) % lenOut;
+                // Check if a qualified character is already present
+                // Write the loop so that the reserved block is ignored.
+                for (var i = 0; i < lenOut - reserved; i++)
+                {
+                        var i2 = (pos0 + reserved + i) % lenOut
+                        var c = sInput.charCodeAt(i2);
+                        if (c >= cStart && c < cStart + cNum)
+                                return sInput;  // Already present - nothing to do
+                }
+                var sHead   = (pos > 0 ? sInput.substring(0, pos) : "");
+                var sInject = String.fromCharCode(((seed + sInput.charCodeAt(pos)) % cNum) + cStart);
+                var sTail   = (pos + 1 < sInput.length ? sInput.substring(pos+1, sInput.length) : "");
+                return (sHead + sInject + sTail);
+        },
 
-		// Another specialized method to replace a class of character, e.g.
-		// punctuation, with plain letters and numbers.
-		// Parameters:
-		//  sInput = input string
-		//  seed   = seed for pseudo-randomizing the position and injected character
-		//  lenOut = length of head of string that will eventually survive truncation.
-		removeSpecialCharacters: function(sInput, seed, lenOut)
-		{
-				var s = '';
-				var i = 0;
-				while (i < lenOut)
-				{
-						var j = sInput.substring(i).search(/[^a-z0-9]/i);
-						if (j < 0)
-								break;
-						if (j > 0)
-								s += sInput.substring(i, i + j);
-						s += String.fromCharCode((seed + i) % 26 + 65);
-						i += (j + 1);
-				}
-				if (i < sInput.length)
-						s += sInput.substring(i);
-				return s;
-		},
+        // Another specialized method to replace a class of character, e.g.
+        // punctuation, with plain letters and numbers.
+        // Parameters:
+        //  sInput = input string
+        //  seed   = seed for pseudo-randomizing the position and injected character
+        //  lenOut = length of head of string that will eventually survive truncation.
+        removeSpecialCharacters: function(sInput, seed, lenOut)
+        {
+                var s = '';
+                var i = 0;
+                while (i < lenOut)
+                {
+                        var j = sInput.substring(i).search(/[^a-z0-9]/i);
+                        if (j < 0)
+                                break;
+                        if (j > 0)
+                                s += sInput.substring(i, i + j);
+                        s += String.fromCharCode((seed + i) % 26 + 65);
+                        i += (j + 1);
+                }
+                if (i < sInput.length)
+                        s += sInput.substring(i);
+                return s;
+        },
 
-		// Convert input string to digits-only.
-		// Parameters:
-		//  sInput = input string
-		//  seed   = seed for pseudo-randomizing the position and injected character
-		//  lenOut = length of head of string that will eventually survive truncation.
-		convertToDigits: function(sInput, seed, lenOut)
-		{
-				var s = '';
-				var i = 0;
-				while (i < lenOut)
-				{
-						var j = sInput.substring(i).search(/[^0-9]/i);
-						if (j < 0)
-								break;
-						if (j > 0)
-								s += sInput.substring(i, i + j);
-						s += String.fromCharCode((seed + sInput.charCodeAt(i)) % 10 + 48);
-						i += (j + 1);
-				}
-				if (i < sInput.length)
-						s += sInput.substring(i);
-				return s;
-		},
+        // Convert input string to digits-only.
+        // Parameters:
+        //  sInput = input string
+        //  seed   = seed for pseudo-randomizing the position and injected character
+        //  lenOut = length of head of string that will eventually survive truncation.
+        convertToDigits: function(sInput, seed, lenOut)
+        {
+                var s = '';
+                var i = 0;
+                while (i < lenOut)
+                {
+                        var j = sInput.substring(i).search(/[^0-9]/i);
+                        if (j < 0)
+                                break;
+                        if (j > 0)
+                                s += sInput.substring(i, i + j);
+                        s += String.fromCharCode((seed + sInput.charCodeAt(i)) % 10 + 48);
+                        i += (j + 1);
+                }
+                if (i < sInput.length)
+                        s += sInput.substring(i);
+                return s;
+        },
 
 }
 </script>
