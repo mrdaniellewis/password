@@ -1,5 +1,15 @@
-Password Hasher
-===============
+# Password Hasher
+
+This is a fork of [tabatkins password hasher](https://github.com/tabatkins/password).
+
+The fork improves the look on a mobile adds offline support.
+
+## To do
+
+* Cache element references
+* Open settings if they modified
+
+## Original readme
 
 You need strong, unique passwords for every site, but it's too hard to remember all of them.
 You can use a password vault, but what if your computer crashes (you know you haven't backed it up enough),
