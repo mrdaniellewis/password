@@ -2,12 +2,7 @@
 
 This is a fork of [tabatkins password hasher](https://github.com/tabatkins/password).
 
-The fork improves the look on a mobile adds offline support.
-
-## To do
-
-* Cache element references
-* Open settings if they modified
+The fork improves the look on a mobile, adds some crude offline support and automatically saves settings to local storage as I'm lazy.
 
 ## Original readme
 
