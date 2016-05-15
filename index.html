@@ -136,6 +136,11 @@ fieldset.size > ul {
     </label>
 
     <label class="row">
+        Master Key again
+        <input id="key2" type="password" autofocus autocomplete="off" required>
+    </label>
+
+    <label class="row">
         Site tag
         <input type=text id="tag" required>
     </label>
@@ -215,7 +220,8 @@ fieldset.size > ul {
 ( function() {
 
     var localStorageKey = 'db329347-75fb-4d26-8f4e-6b887f2f08a9';
-    var elements = document.getElementById( 'form' ).elements;
+    var form = document.getElementById( 'form' );
+    var elements = form.elements;
 
     var settings = {
 
@@ -317,8 +323,6 @@ fieldset.size > ul {
 
     function loadSettings( tag ) {
 
-        console.log( 'load', tag );
-
         var store = {};
         try {
             store = JSON.parse( localStorage.getItem( localStorageKey ) || '{}' );
@@ -344,6 +348,10 @@ fieldset.size > ul {
         .addEventListener( 'submit', function( e ) {
             
             e.preventDefault();
+
+            if ( !checkPassword() ) {
+                return;
+            }
 
             var key = elements.key.value;
 
@@ -387,6 +395,17 @@ fieldset.size > ul {
                 toggleMore( true );
             }
         } );
+
+    form
+        .addEventListener( 'change', function() {      
+            var result = checkPassword() ? '' : 'Mismatched passwords';
+            elements.key.setCustomValidity( result );
+            elements.key2.setCustomValidity( result );
+        } );
+
+    function checkPassword() {
+        return elements.key.value === elements.key2.value;
+    }
 
     function toggleMore( force ) {
         var $hide = document.getElementById( 'details' );
