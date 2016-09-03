@@ -142,7 +142,8 @@ fieldset.size > ul {
 
   <label class="row">
   Site tag
-  <input type=text id="tag" required>
+  <input type=text id="tag" list="saved-sites" required>
+  <datalist id="saved-sites" />
   </label>
 
   <button type="submit" id="generate">Generate</button>
@@ -216,6 +217,7 @@ fieldset.size > ul {
 
   var localStorageKey = 'db329347-75fb-4d26-8f4e-6b887f2f08a9';
   var form = document.getElementById( 'form' );
+  var dataList = document.getElementById('saved-sites');
   var elements = form.elements;
 
   var settings = {
@@ -229,6 +231,7 @@ fieldset.size > ul {
 
     set size( value ) {
       elements.size.value = value;
+      elements.size.dispatchEvent(new Event('input'));
     },
 
     get requireDigit() {
@@ -312,23 +315,14 @@ fieldset.size > ul {
     }
   }
 
-  function loadSettings( tag ) {
+  function loadStore( tag ) {
     var store = {};
     try {
       store = JSON.parse( localStorage.getItem( localStorageKey ) || '{}' );
     } catch ( e ) {
       // Ignore
     }
-
-    var item = store[ tag ];
-
-    if ( !item ) {
-      return;
-    }
-
-    for ( var i in item ) {
-      settings[i] = item[i];
-    }
+    return store || {};
   }
 
   var $hash = elements.hash;
@@ -357,6 +351,7 @@ fieldset.size > ul {
       $hash.setSelectionRange( 0, $hash.value.length );
       $hash.focus();
       saveSettings();
+      populateDataList();
     } );
 
   elements.digitsOnly
@@ -376,10 +371,16 @@ fieldset.size > ul {
 
   elements.tag
     .addEventListener( 'change', function() {
-      loadSettings( this.value );
-      if ( !settings.isDefault() ) {
-      toggleMore( true );
+      var store = loadStore();
+      var itemSettings = store[this.value];
+      if (!itemSettings) {
+        settings.reset(); 
+      } else {
+        for ( var i in itemSettings ) {
+          settings[i] = itemSettings[i];
+        }
       }
+      toggleMore(!settings.isDefault());
     } );
 
   form
@@ -407,6 +408,18 @@ fieldset.size > ul {
       toggleMore();
     } );
 
+  function populateDataList() {
+    var store = loadStore();
+    dataList.innerHTML = '';
+    for (var i in store) {
+      var option = document.createElement('option');
+      option.value = option.label = i;
+      dataList.appendChild(option);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', populateDataList);
+  document.addEventListener('pageShow', populateDataList);
 }() );
 
 </script>
