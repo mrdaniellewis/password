@@ -374,11 +374,14 @@ fieldset.size > ul {
       var store = loadStore();
       var itemSettings = store[this.value];
       if (!itemSettings) {
-        settings.reset(); 
+        settings.reset();
       } else {
         for ( var i in itemSettings ) {
           settings[i] = itemSettings[i];
         }
+        // Trigger the form
+        var submit = new Event('submit', { cancelable: true });
+        this.form.dispatchEvent(submit);
       }
       toggleMore(!settings.isDefault());
     } );
