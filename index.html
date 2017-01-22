@@ -371,6 +371,7 @@ fieldset.size > ul {
 
   elements.tag
     .addEventListener( 'change', function() {
+      this.value = this.value.trim();
       var store = loadStore();
       var itemSettings = store[this.value];
       if (!itemSettings) {
