@@ -171,6 +171,7 @@ fieldset.size > ul {
       <li><label><input type="checkbox" id="digit" checked> Digits</label></li>
       <li><label><input type="checkbox" id="punctuation"> Punctuation</label></li>
       <li><label><input type="checkbox" id="mixedCase" checked> Mixed Case</label></li>
+      <li><label><input type="checkbox" id="bangify"> Bangify</label></li>
       </ul>
     </fieldset>
 
@@ -251,6 +252,14 @@ fieldset.size > ul {
       elements.punctuation.checked = value;
     },
 
+    get bangify() {
+      return elements.bangify.checked;
+    },
+
+    set bangify(value) {
+      elements.bangify.checked = value;
+    },
+
     get requireMixedCase() {
       return elements.mixedCase.checked;
     },
@@ -287,6 +296,7 @@ fieldset.size > ul {
       this.requireMixedCase = elements.mixedCase.defaultChecked;
       this.requireNoSpecial = elements.noSpecial.defaultChecked;
       this.requireDigitsOnly = elements.digitsOnly.defaultChecked;
+      this.bangify = elements.bangify.defaultChecked;
     },
 
     isDefault: function() {
@@ -295,7 +305,8 @@ fieldset.size > ul {
       && this.requirePunctuation === elements.punctuation.defaultChecked
       && this.requireMixedCase === elements.mixedCase.defaultChecked
       && this.requireNoSpecial === elements.noSpecial.defaultChecked
-      && this.requireDigitsOnly === elements.digitsOnly.defaultChecked;
+      && this.requireDigitsOnly === elements.digitsOnly.defaultChecked
+      && this.bangify === elements.bangify.defaultChecked;
     }
   };
 
@@ -349,7 +360,8 @@ fieldset.size > ul {
         settings.requirePunctuation,
         settings.requireMixedCase,
         settings.requireNoSpecial,
-        settings.requireDigitsOnly
+        settings.requireDigitsOnly,
+        settings.bangify
       );
 
       $hash.setSelectionRange(0, $hash.value.length);
@@ -386,8 +398,7 @@ fieldset.size > ul {
           settings[i] = itemSettings[i];
         }
         // Trigger the form
-        var submit = new Event('submit', { cancelable: true });
-        this.form.dispatchEvent(submit);
+        elements.generate.click();
 
         // Show the delete button
         document.getElementById('delete').hidden = false;
@@ -726,7 +737,8 @@ var PassHashCommon =
     requirePunctuation,
     requireMixedCase,
     restrictSpecial,
-    restrictDigits)
+    restrictDigits,
+    bangify)
   {
     // Start with the SHA1-encrypted master key/site tag.
     var s = b64_hmac_sha1(masterKey, siteTag);
@@ -758,8 +770,16 @@ var PassHashCommon =
       if (restrictSpecial)
         s = PassHashCommon.removeSpecialCharacters(s, sum, hashWordSize);
     }
-    // Trim it to size.
-    return s.substr(0, hashWordSize);
+
+    // Trim it to size
+    s = s.substr(0, hashWordSize);
+
+    // Add a bang at the end
+    if (bangify) {
+      s = s.replace(/.$/, '!');
+    }
+
+    return s;
   },
 
   // This is a very specialized method to inject a character chosen from a
