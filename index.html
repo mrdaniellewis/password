@@ -160,7 +160,8 @@ fieldset.size > ul {
 
   <div id="details" class="hide">
 
-    <button  type="button" id="reset">Reset</button>
+    <button type="button" id="reset">Reset</button>
+    <button type="button" id="delete" hidden>Delete saved</button>
 
     <div class="buttons">
 
@@ -298,61 +299,64 @@ fieldset.size > ul {
     }
   };
 
-  function saveSettings() {
-    var store = {};
+  function loadStore() {
     try {
-      store = JSON.parse( localStorage.getItem( localStorageKey ) || '{}' );
-    } catch ( e ) {
+      return JSON.parse(localStorage.getItem(localStorageKey) || '{}');
+    } catch (e) {
       // Ignore
     }
-
-    store[ settings.tag ] = settings;
-
-    try {
-      localStorage.setItem( localStorageKey, JSON.stringify( store ) );
-    } catch ( e ) {
-      // Ignore
-    }
+    return {};
   }
 
-  function loadStore( tag ) {
-    var store = {};
+  function saveStore(data) {
     try {
-      store = JSON.parse( localStorage.getItem( localStorageKey ) || '{}' );
-    } catch ( e ) {
+      localStorage.setItem(localStorageKey, JSON.stringify(data));
+    } catch (e) {
       // Ignore
     }
-    return store || {};
+    populateDataList();
+  }
+
+  function saveSettings() {
+    var store = loadStore();
+    store[settings.tag] = settings;
+    saveStore(store);
+  }
+
+  function deleteStoreTag(tag) {
+    var store = loadStore();
+    delete store[tag];
+    saveStore(store);
   }
 
   var $hash = elements.hash;
 
   form
-    .addEventListener( 'submit', function( e ) {
+    .addEventListener('submit', function(e) {
       e.preventDefault();
 
-      if ( !checkPassword() ) {
-      return;
+      if (!checkPassword()) {
+        return;
       }
 
       var key = elements.key.value;
 
       $hash.value = PassHashCommon.generateHashWord(
-      settings.tag,
-      key,
-      settings.size,
-      settings.digit,
-      settings.requirePunctuation,
-      settings.requireMixedCase,
-      settings.requireNoSpecial,
-      settings.requireDigitsOnly
+        settings.tag,
+        key,
+        settings.size,
+        settings.digit,
+        settings.requirePunctuation,
+        settings.requireMixedCase,
+        settings.requireNoSpecial,
+        settings.requireDigitsOnly
       );
 
-      $hash.setSelectionRange( 0, $hash.value.length );
+      $hash.setSelectionRange(0, $hash.value.length);
       $hash.focus();
       saveSettings();
-      populateDataList();
-    } );
+      document.getElementById('delete').hidden = false;
+    });
 
   elements.digitsOnly
     .addEventListener( 'change', function() {
@@ -376,6 +380,7 @@ fieldset.size > ul {
       var itemSettings = store[this.value];
       if (!itemSettings) {
         settings.reset();
+        document.getElementById('delete').hidden = true;
       } else {
         for ( var i in itemSettings ) {
           settings[i] = itemSettings[i];
@@ -383,9 +388,19 @@ fieldset.size > ul {
         // Trigger the form
         var submit = new Event('submit', { cancelable: true });
         this.form.dispatchEvent(submit);
+
+        // Show the delete button
+        document.getElementById('delete').hidden = false;
       }
       toggleMore(!settings.isDefault());
     } );
+
+  elements.delete
+    .addEventListener('click', function() {
+      deleteStoreTag(elements.tag.value);
+      elements.tag.value = '';
+      elements.tag.dispatchEvent(new Event('change'));
+    });
 
   form
     .addEventListener( 'change', function() {
