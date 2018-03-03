@@ -25,6 +25,20 @@ datalist {
   font-family: Menlo, Consolas, monospace;
 }
 
+#hash.ok {
+  background:
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="green" d="M6,10 L2.5,6.5 L0.5,8.5 L6,14 L15.5,4.5 L13.5,2.5 L6,10 Z"></path></svg>')
+    right 5px center / 1em
+    no-repeat;
+}
+
+#hash.danger {
+  background:
+    url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="red" d="M92.4,21.7L78.3,7.6c-1.1,0-1.7,0-2.8,0L50,33L24.5,7.6c-1.1,0-1.7,0-2.8,0L7.6,21.7c0,1.1,0,1.7,0,2.8L33,50L7.6,75.5  c0,1.1,0,1.7,0,2.8l14.1,14.1c1.1,0,1.7,0,2.8,0L50,67l25.5,25.5c1.1,0,1.7,0,2.8,0l14.1-14.1c0-1.1,0-1.7,0-2.8L67,50l25.5-25.5  C92.4,23.4,92.4,22.8,92.4,21.7z"></path></svg>')
+    right 5px center / 1em
+    no-repeat;
+}
+
 fieldset {
   margin: 1em 0 0 0;
   border-color: #eee;
@@ -368,6 +382,7 @@ fieldset.size > ul {
       $hash.focus();
       saveSettings();
       document.getElementById('delete').hidden = false;
+      checkPwnage();
     });
 
   elements.digitsOnly
@@ -446,6 +461,44 @@ fieldset.size > ul {
       option.value = option.label = i;
       dataList.appendChild(option);
     }
+  }
+
+  function fetchPwnage(password) {
+    var hash = hex_sha1(password).toUpperCase();
+    var url = 'https://api.pwnedpasswords.com/range/' + hash.slice(0, 5);
+    return fetch(url)
+      .then(function (response) {
+        if (response.ok) {
+          return response.text();
+        }
+        throw new Error('Expected OK response from ' + url);
+      })
+      .then(function (data) {
+        var hits = 0;
+        data.split('\n').some(function (value) {
+          var parts = value.trim().split(':');
+          if (parts[0] === hash.slice(5)) {
+            hits = +parts[1];
+            return true;
+          }
+          return false;
+        });
+        return hits;
+      });
+  }
+  window.fetchPwnage = fetchPwnage; // For testing
+
+  function checkPwnage() {
+    $hash.classList.add('ok');
+    fetchPwnage($hash.value)
+      .then(function (count) {
+        if (count === 0) {
+          $hash.classList.add('ok');
+        } else {
+          $hash.classList.add('danger');
+          alert('Password compromised ' + count + ' times');
+        }
+      });
   }
 
   document.addEventListener('DOMContentLoaded', populateDataList);
