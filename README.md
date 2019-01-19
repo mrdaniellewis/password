@@ -2,8 +2,6 @@
 
 This is a fork of [tabatkins password hasher](https://github.com/tabatkins/password).
 
-The fork improves the look on a mobile, adds some crude offline support and automatically saves settings to local storage as I'm lazy.
-
 ## Original readme
 
 You need strong, unique passwords for every site, but it's too hard to remember all of them.
