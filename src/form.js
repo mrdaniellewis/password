@@ -35,6 +35,7 @@ function runOnce() {
 export default class {
   constructor() {
     this.store = new Store();
+    this.datalistFallback();
     this.bindPassword('masterKey');
     ['siteTag', 'hash', ...Object.keys(defaultSettings)].forEach(key => this.bindInput(key));
     this.bindListeners();
@@ -201,6 +202,10 @@ export default class {
     e.preventDefault();
   }
 
+  onSavedSitesChange(e) {
+    this.siteTag = e.target.value;
+  }
+
   generateHash() {
     this.hash = hasher({
       ...this.settings,
@@ -238,12 +243,13 @@ export default class {
   }
 
   updateDatalist() {
-    const savedSites = $('saved-sites');
-    savedSites.innerHTML = '';
+    const savedSites = $('savedSites');
+    savedSites.innerHTML = '<option />';
     [...this.store.keys()].forEach((key) => {
       const option = document.createElement('option');
       option.value = key;
       option.label = key;
+      option.innerHTML = key;
       savedSites.appendChild(option);
     });
   }
@@ -256,5 +262,16 @@ export default class {
       }
       lastViewed = Date.now();
     });
+  }
+
+  datalistFallback() {
+    if (!$('siteTag').list) {
+      const list = $('savedSites');
+      const select = document.createElement('select');
+      select.id = 'savedSites';
+      list.parentNode.insertBefore(select, list.nextSibling);
+      list.remove();
+      this.bindInput('savedSites');
+    }
   }
 }

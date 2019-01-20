@@ -9,6 +9,10 @@ input, button {
   font: inherit;
 }
 
+datalist {
+  display: none !important;
+}
+
 #hash {
   font-family: Menlo, Consolas, monospace;
 }
@@ -47,7 +51,7 @@ fieldset > ul {
   list-style: none;
 }
 
-input[type=text], input[type=password] {
+input[type=text], input[type=password], select {
   width: 100%;
   box-sizing: border-box;
   padding: .2em;
