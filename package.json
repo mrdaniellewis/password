@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "lint": "eslint . --ext js",
-    "start": "webpack-dev-server --mode development --inline=false",
+    "start": "webpack-dev-server --mode development --inline=false --hot=false",
     "build": "npm run lint && webpack --mode production",
     "stats": "webpack --mode production --profile --json",
     "deploy": "npm run build && gh-pages -d dist"

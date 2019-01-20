@@ -9,11 +9,6 @@ input, button {
   font: inherit;
 }
 
-datalist {
-  display: none !important;
-}
-
-
 #hash {
   font-family: Menlo, Consolas, monospace;
 }

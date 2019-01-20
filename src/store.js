@@ -45,7 +45,7 @@ export default class {
   load() {
     try {
       let data = localStorage.getItem(localStorageKey);
-      data = JSON.parse(data);
+      data = JSON.parse(data) || {};
       if (data.props) {
         data = this.inflate(data);
       } else {

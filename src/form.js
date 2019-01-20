@@ -109,7 +109,7 @@ export default class {
         if (typeof value.value !== 'function') {
           return;
         }
-        const parts = key.match(/^on(.*)(Click|Input|Change|Blur|Focus|Submit)$/);
+        const parts = key.match(/^on(.*)(Click|Input|Change|Blur|Focus|Submit|Keypress|Cut|Paste|Keydown)$/);
         if (!parts) {
           return;
         }
@@ -182,14 +182,33 @@ export default class {
     $('delete').hidden = false;
   }
 
+  // iOS will not focus a readonly element, so simulate it
+  onHashKeypress(e) {
+    e.preventDefault();
+  }
+
+  onHashKeydown(e) {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      e.preventDefault();
+    }
+  }
+
+  onHashCut(e) {
+    e.preventDefault();
+  }
+
+  onHashPaste(e) {
+    e.preventDefault();
+  }
+
   generateHash() {
     this.hash = hasher({
       ...this.settings,
       masterKey: this.masterKey,
       siteTag: this.siteTag,
     });
-    $('hash').setSelectionRange(0, this.hash.length);
     $('hash').focus();
+    $('hash').setSelectionRange(0, this.hash.length);
     this.updateDatalist();
   }
 
