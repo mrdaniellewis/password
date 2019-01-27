@@ -71,7 +71,7 @@ export default class {
     Object.defineProperty(this, id, {
       enumerable: true,
       get() {
-        return input[prop];
+        return typeof input[prop] === 'string' ? input[prop].trim() : input[prop];
       },
       set(value) {
         input[prop] = value;
@@ -244,14 +244,24 @@ export default class {
 
   updateDatalist() {
     const savedSites = $('savedSites');
-    savedSites.innerHTML = '<option />';
-    [...this.store.keys()].forEach((key) => {
-      const option = document.createElement('option');
-      option.value = key;
-      option.label = key;
-      option.innerHTML = key;
-      savedSites.appendChild(option);
-    });
+    if (savedSites.matches('select')) {
+      savedSites.innerHTML = '<option value="">Saved sites...</option>';
+    } else {
+      savedSites.innerHTML = '';
+    }
+    [...this.store.keys()]
+      .map(key => [key.toLowerCase(), key])
+      .sort()
+      .map(([, key]) => key)
+      .filter(Boolean)
+      .forEach((key) => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.label = key;
+        option.innerHTML = key;
+        savedSites.appendChild(option);
+      });
+    savedSites.value = this.siteTag;
   }
 
   setTimers() {
@@ -265,13 +275,18 @@ export default class {
   }
 
   datalistFallback() {
-    if (!$('siteTag').list) {
+    if (true) { // !$('siteTag').list) {
       const list = $('savedSites');
       const select = document.createElement('select');
       select.id = 'savedSites';
+      select.className = list.className;
+      select.setAttribute('aria-label', list.getAttribute('aria-label'));
       list.parentNode.insertBefore(select, list.nextSibling);
       list.remove();
       this.bindInput('savedSites');
+      $('siteTag').addEventListener('change', () => {
+        $('savedSites').value = this.siteTag;
+      });
     }
   }
 }
