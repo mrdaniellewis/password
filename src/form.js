@@ -275,7 +275,7 @@ export default class {
   }
 
   datalistFallback() {
-    if (true) { // !$('siteTag').list) {
+    if (!$('siteTag').list) {
       const list = $('savedSites');
       const select = document.createElement('select');
       select.id = 'savedSites';
