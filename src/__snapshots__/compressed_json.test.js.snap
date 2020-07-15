@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`stringify stringifies an array 1`] = `"[[\\"\\",\\"foe\\"],[null,true,false,0,\\"string\\",[1,2],{\\"$0\\":\\"foo\\",\\"$1\\":\\"thumb\\"}]]"`;
+
+exports[`stringify stringifies an object 1`] = `"[[\\"fee\\",\\"array\\",\\"object\\",\\"\\",\\"foe\\"],{\\"$0\\":\\"fi\\",\\"$1\\":[null,true,false,0,\\"string\\",[1,2],{\\"$3\\":\\"foo\\",\\"$4\\":\\"thumb\\"}],\\"$2\\":{\\"$3\\":\\"foo\\",\\"$4\\":\\"thumb\\"}}]"`;

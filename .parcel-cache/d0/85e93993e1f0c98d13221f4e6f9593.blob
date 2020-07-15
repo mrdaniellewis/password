@@ -1,0 +1,13 @@
+"use strict";
+
+require("preact/debug");
+
+var _preact = require("preact");
+
+var _form = require("./components/form.jsx");
+
+(0, _preact.render)((0, _preact.h)(_form.Form, null), document.getElementById('form'));
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(require("worker.js"));
+}

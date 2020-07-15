@@ -4,10 +4,11 @@
   "description": "Hash based password manager",
   "main": "src/index.js",
   "scripts": {
-    "lint": "eslint . --ext js",
-    "start": "webpack-dev-server --mode development --inline=false --hot=false",
-    "build": "npm run lint && webpack --mode production",
-    "stats": "webpack --mode production --profile --json",
+    "test": "jest",
+    "clean": "rm -rf dist",
+    "lint": "eslint . --ext js --ext jsx",
+    "start": "parcel serve src/index.html",
+    "build": "parcel build src/index.html",
     "deploy": "npm run build && gh-pages -d dist"
   },
   "repository": {
@@ -21,54 +22,100 @@
   },
   "homepage": "https://github.com/mrdaniellewis/password#readme",
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^18.1.0",
-    "eslint-plugin-import": "^2.20.2",
-    "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-react": "^7.20.0",
-    "eslint-plugin-react-hooks": "^4.0.2",
-    "gh-pages": "^2.0.1",
-    "parcel": "^2.0.0-alpha.3.2",
+    "@babel/core": "^7.10.3",
+    "@babel/plugin-transform-react-jsx": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-preact": "^1.1.1",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-jest": "^23.16.0",
+    "eslint-plugin-react-hooks": "^4.0.4",
+    "gh-pages": "^3.1.0",
+    "jest": "^26.0.1",
+    "parcel": "^2.0.0-beta.1",
     "preact": "^10.4.4"
   },
   "alias": {
     "react": "preact/compat",
+    "react-dom/test-utils": "preact/test-utils",
     "react-dom": "preact/compat"
   },
   "eslintConfig": {
-    "extends": "airbnb-base",
+    "extends": [
+      "airbnb-base",
+      "plugin:react/recommended",
+      "preact"
+    ],
     "env": {
       "browser": true
     },
     "rules": {
-      "brace-style": [
+      "class-methods-use-this": "off",
+      "import/extensions": [
         "error",
-        "1tbs",
+        "never",
         {
-          "allowSingleLine": false
+          "json": "always"
         }
       ],
-      "class-methods-use-this": "off",
-      "curly": [
-        "error",
-        "all"
-      ],
-      "no-console": [
+      "import/no-default-export": "error",
+      "import/no-extraneous-dependencies": "off",
+      "import/prefer-default-export": "off",
+      "no-restricted-syntax": "off",
+      "object-curly-newline": [
         "error",
         {
-          "allow": [
-            "error"
+          "consistent": true
+        }
+      ],
+      "prefer-destructuring": "off",
+      "react/no-unknown-property": [
+        "error",
+        {
+          "ignore": [
+            "class"
           ]
         }
       ],
-      "no-param-reassign": "off",
-      "no-restricted-syntax": "off",
-      "no-return-assign": [
+      "react/prop-types": "off",
+      "react/jsx-indent": [
         "error",
-        "except-parens"
+        2
       ],
-      "object-curly-newline": "off"
-    }
+      "react/jsx-indent-props": [
+        "error",
+        2
+      ],
+      "react/jsx-max-props-per-line": [
+        "error",
+        {
+          "maximum": 1,
+          "when": "multiline"
+        }
+      ]
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/*.test.{js,jsx}",
+          "src/__jest_setup.js"
+        ],
+        "env": {
+          "jest": true
+        },
+        "plugins": [
+          "jest"
+        ],
+        "rules": {
+          "jest/expect-expect": "off",
+          "jest/no-standalone-expect": "off"
+        }
+      }
+    ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "immer": "^7.0.3",
+    "uuid": "^8.1.0"
+  }
 }

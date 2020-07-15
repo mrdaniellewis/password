@@ -1,0 +1,143 @@
+body {
+  font: 1.2em/1.5 sans-serif;
+  margin: auto;
+  max-width: 20em;
+  padding: 1em;
+}
+
+input, button {
+  font: inherit;
+}
+
+datalist {
+  display: none !important;
+}
+
+.hash {
+  font-family: Menlo, Consolas, monospace;
+  user-select: all;
+}
+
+#hash.ok {
+  background:
+    url('e054ee755597a4fa174c537dc787d6d0')
+    right 5px center / 1em
+    no-repeat;
+}
+
+#hash.danger {
+  background:
+    url('0ec4c18fcbd0bcda5a269d01a87b2114')
+    right 5px center / 1em
+    no-repeat;
+}
+
+#hash.network {
+  background:
+    url('5fbef743cbf676c4a3f82688e6773442')
+    right 5px center / 1em
+    no-repeat;
+}
+
+fieldset {
+  margin: 1em 0 0 0;
+  border-color: #eee;
+  padding-left: .5em;
+  padding-right: .5em;
+}
+
+fieldset > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+input[type=text], input[type=password], select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: .2em;
+  line-height: 1.2;
+  font-size: 100%;
+}
+
+input[type=range] {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+input[type="range"]::-moz-range-track {
+  background-image:linear-gradient(to right, black 1px, transparent 1px);
+  /* Default thumb size is 1em with a 0.1em border.
+   * The background needs to start the thumb radius (.6em) - tick radius (.5px) in and end .6em short
+   */
+  background-size: calc( ( 100% - 1.2em ) / 11 ) 40px;
+  background-position: calc( .6em - .5px );
+}
+
+button {
+  box-sizing: border-box;
+  width: 100%;
+  cursor: pointer;
+}
+
+.row {
+  display: block;
+  margin: 1em 0;
+}
+
+.buttons {
+  display: flex;
+}
+
+
+.buttons > button, .buttons > * {
+  width: 50%;
+  flex: 1 auto;
+}
+
+
+fieldset.size > ul {
+  -webkit-columns: 3;
+  -moz-columns: 3;
+  columns: 3;
+}
+
+.hide {
+  display: none;
+}
+
+.no-border {
+  border: none;
+  padding: 0;
+}
+
+.no-border > legend {
+  padding: 0;
+  width: 100%;
+}
+
+[aria-expanded=false]:before {
+  content: "► ";
+}
+
+[aria-expanded=true]:before {
+  content: "▼ ";
+}
+
+.star:after {
+  content: " ★";
+}
+
+.range-list__min {
+  float: left;
+  font-size: .8em;
+  margin-top: -.5em;
+}
+
+.range-list__max {
+  float: right;
+  font-size: .8em;
+  text-align: right;
+  margin-top: -.5em;
+}

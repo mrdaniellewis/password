@@ -1,0 +1,3 @@
+"use strict";
+
+require('./bundle-manifest').register(JSON.parse("{\"f2ba84504e0402ee\":\"password.965a8827.js\",\"81a5e50acc2f092e\":\"worker.js\"}"));

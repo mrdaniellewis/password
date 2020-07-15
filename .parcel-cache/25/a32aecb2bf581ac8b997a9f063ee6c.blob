@@ -1,0 +1,22 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.initialState = initialState;
+
+var _default_options = require("./default_options");
+
+function initialState() {
+  return {
+    options: {
+      masterKey: '',
+      siteTag: '',
+      ..._default_options.defaultOptions
+    },
+    hash: '',
+    showDetails: false,
+    sync: [],
+    sites: new Map()
+  };
+}

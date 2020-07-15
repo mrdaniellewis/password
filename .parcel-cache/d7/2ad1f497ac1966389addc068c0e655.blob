@@ -1,0 +1,11 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Context = void 0;
+
+var _preact = require("preact");
+
+const Context = (0, _preact.createContext)();
+exports.Context = Context;

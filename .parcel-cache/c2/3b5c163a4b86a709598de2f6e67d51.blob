@@ -1,0 +1,103 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.generateHash = generateHash;
+exports.resetOptions = resetOptions;
+exports.storeKey = storeKey;
+exports.clearKey = clearKey;
+exports.setOption = setOption;
+exports.setShowDetails = setShowDetails;
+exports.deleteSite = deleteSite;
+exports.saveSite = saveSite;
+exports.saveSites = saveSites;
+exports.loadSite = loadSite;
+exports.LOAD_SITE = exports.DELETE_SITE = exports.SAVE_SITE = exports.SAVE_SITES = exports.SET_SHOW_DETAILS = exports.SET_OPTIONS = exports.CLEAR_KEY = exports.STORE_KEY = exports.RESET_OPTIONS = exports.GENERATE_HASH = void 0;
+const GENERATE_HASH = Symbol('GENERATE_HASH');
+exports.GENERATE_HASH = GENERATE_HASH;
+const RESET_OPTIONS = Symbol('SET_OPTIONS');
+exports.RESET_OPTIONS = RESET_OPTIONS;
+const STORE_KEY = Symbol('STORE_KEY');
+exports.STORE_KEY = STORE_KEY;
+const CLEAR_KEY = Symbol('CLEAR_KEY');
+exports.CLEAR_KEY = CLEAR_KEY;
+const SET_OPTIONS = Symbol('SET_OPTIONS');
+exports.SET_OPTIONS = SET_OPTIONS;
+const SET_SHOW_DETAILS = Symbol('SET_SHOW_DETAILS');
+exports.SET_SHOW_DETAILS = SET_SHOW_DETAILS;
+const SAVE_SITES = Symbol('SAVE_SITES');
+exports.SAVE_SITES = SAVE_SITES;
+const SAVE_SITE = Symbol('SAVE_SITE');
+exports.SAVE_SITE = SAVE_SITE;
+const DELETE_SITE = Symbol('DELETE_SITE');
+exports.DELETE_SITE = DELETE_SITE;
+const LOAD_SITE = Symbol('LOAD_SITE');
+exports.LOAD_SITE = LOAD_SITE;
+
+function generateHash(e) {
+  e.preventDefault();
+  return {
+    type: GENERATE_HASH
+  };
+}
+
+function resetOptions() {
+  return {
+    type: RESET_OPTIONS
+  };
+}
+
+function storeKey() {
+  return {
+    type: STORE_KEY
+  };
+}
+
+function clearKey() {
+  return {
+    type: CLEAR_KEY
+  };
+}
+
+function setOption(options) {
+  return {
+    type: SET_OPTIONS,
+    ...options
+  };
+}
+
+function setShowDetails(showDetails) {
+  return {
+    type: SET_SHOW_DETAILS,
+    showDetails
+  };
+}
+
+function deleteSite(siteTag) {
+  return {
+    type: DELETE_SITE,
+    siteTag
+  };
+}
+
+function saveSite(options) {
+  return {
+    type: SAVE_SITE,
+    ...options
+  };
+}
+
+function saveSites(sites) {
+  return {
+    type: SAVE_SITES,
+    sites
+  };
+}
+
+function loadSite(siteTag) {
+  return {
+    type: LOAD_SITE,
+    siteTag
+  };
+}

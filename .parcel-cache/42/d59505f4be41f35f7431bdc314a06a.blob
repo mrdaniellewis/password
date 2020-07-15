@@ -1,0 +1,10 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.keyStore = void 0;
+// Store the master password in a WeakMap
+// This hides the value from being easily viewed in debugging tools
+const keyStore = new WeakMap();
+exports.keyStore = keyStore;

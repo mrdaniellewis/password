@@ -1,0 +1,18 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useThunkReducer = useThunkReducer;
+
+var _hooks = require("preact/hooks");
+
+function useThunkReducer(reducer, initialState) {
+  const [state, dispatch] = (0, _hooks.useReducer)(reducer, initialState); // Holds the latest state
+
+  const stateRef = (0, _hooks.useRef)(state);
+  stateRef.current = state; // Special dispatch that will call a returned function with (dispatch, getState)
+
+  const thunkDispatch = (0, _hooks.useCallback)(data => typeof data === 'function' ? data(thunkDispatch, () => stateRef.current) : dispatch(data), []);
+  return [state, thunkDispatch];
+}

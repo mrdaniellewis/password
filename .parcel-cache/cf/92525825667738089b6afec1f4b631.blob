@@ -1,0 +1,186 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.reducer = reducer;
+
+var _actions = require("./actions");
+
+var _hasher = _interopRequireDefault(require("./hasher"));
+
+var _default_options = require("./default_options");
+
+var _key_store = require("./key_store");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function optionsAreDefaults(options) {
+  return Object.entries(_default_options.defaultOptions).every(([key, value]) => (options === null || options === void 0 ? void 0 : options[key]) === value);
+}
+
+function reducer(state, {
+  type,
+  ...params
+}) {
+  switch (type) {
+    case _actions.GENERATE_HASH:
+      {
+        const {
+          keyRef,
+          options: {
+            masterKey,
+            ...saveOptions
+          }
+        } = state;
+        return reducer({ ...state,
+          hash: (0, _hasher.default)({ ...saveOptions,
+            masterKey: _key_store.keyStore.get(keyRef)
+          })
+        }, {
+          type: _actions.SAVE_SITE,
+          ...saveOptions
+        });
+      }
+
+    case _actions.STORE_KEY:
+      {
+        const {
+          options: {
+            masterKey
+          }
+        } = state;
+        const keyRef = {};
+
+        _key_store.keyStore.set(keyRef, masterKey);
+
+        return { ...state,
+          keyRef,
+          options: { ...state.options,
+            masterKey: Array(masterKey.length).fill('*').join('')
+          }
+        };
+      }
+
+    case _actions.CLEAR_KEY:
+      {
+        return { ...state,
+          keyRef: null,
+          options: { ...state.options,
+            masterKey: ''
+          }
+        };
+      }
+
+    case _actions.SET_OPTIONS:
+      return { ...state,
+        options: { ..._default_options.defaultOptions,
+          ...state.options,
+          ...params
+        }
+      };
+
+    case _actions.SET_SHOW_DETAILS:
+      {
+        const {
+          showDetails
+        } = params;
+        return { ...state,
+          showDetails
+        };
+      }
+
+    case _actions.RESET_OPTIONS:
+      {
+        return { ...state,
+          options: { ...state.options,
+            ..._default_options.defaultOptions
+          }
+        };
+      }
+
+    case _actions.LOAD_SITE:
+      {
+        const {
+          siteTag
+        } = params;
+        const {
+          options,
+          sites
+        } = state;
+        const newOptions = sites.get(siteTag);
+        return { ...state,
+          options: { ...options,
+            ...newOptions
+          },
+          showDetails: newOptions && !optionsAreDefaults(newOptions)
+        };
+      }
+
+    case _actions.DELETE_SITE:
+      {
+        const {
+          siteTag
+        } = params;
+        let {
+          sites,
+          sync
+        } = state;
+
+        if (sites.has(siteTag)) {
+          sites = new Map(sites);
+          sites.delete(siteTag);
+        }
+
+        sync = [...sync, {
+          type: 'delete',
+          key: siteTag,
+          timestamp: Date.now()
+        }];
+        return { ...state,
+          sites,
+          sync
+        };
+      }
+
+    case _actions.SAVE_SITES:
+      {
+        const {
+          sites
+        } = params;
+        return sites.reduce((s, site) => reducer(s, {
+          type: _actions.SAVE_SITE,
+          ...site
+        }, state));
+      }
+
+    case _actions.SAVE_SITE:
+      {
+        const {
+          siteTag,
+          ...options
+        } = params;
+        let {
+          sites,
+          sync
+        } = state;
+        sites = new Map(sites);
+        sites.set(siteTag, options);
+        sync = [...sync, {
+          type: 'add',
+          key: siteTag,
+          value: options,
+          timestamp: Date.now()
+        }];
+        return { ...state,
+          sites,
+          sync
+        };
+      }
+
+    default: // ignore
+
+  }
+
+  return state;
+}

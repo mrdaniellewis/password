@@ -1,0 +1,202 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Form = Form;
+
+var _preact = require("preact");
+
+var _hooks = require("preact/hooks");
+
+var _use_thunk_reducer = require("../use_thunk_reducer");
+
+var _reducer = require("../reducer");
+
+var _initial_state = require("../initial_state");
+
+var _actions = require("../actions");
+
+var _checkbox = require("./checkbox.jsx");
+
+var _context = require("../context");
+
+const steps = Array(11).fill().map((v, i) => i * 2 + 4);
+
+function Form() {
+  const hashRef = (0, _hooks.useRef)();
+  const [state, dispatch] = (0, _use_thunk_reducer.useThunkReducer)(_reducer.reducer, _initial_state.initialState);
+  const {
+    options: {
+      masterKey,
+      siteTag,
+      hashWordSize,
+      restrictSpecial,
+      restrictDigits,
+      requireDigit,
+      requirePunctuation,
+      requireMixedCase,
+      bangify
+    },
+    hash,
+    showDetails,
+    sites
+  } = state;
+  (0, _hooks.useEffect)(() => {
+    const timeout = setTimeout(() => {
+      dispatch((0, _actions.clearKey)());
+    }, 4 * 60 * 60 * 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  });
+  (0, _hooks.useEffect)(() => {
+    if (hash) {
+      hashRef.current.focus();
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNode(hashRef.current);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  }, [hash]);
+  const changeOption = (0, _hooks.useCallback)((name, prop = 'value') => ({
+    target: {
+      [prop]: value
+    }
+  }) => dispatch((0, _actions.setOption)({
+    [name]: value
+  })), []);
+  const copyToClipboard = (0, _hooks.useCallback)(() => {
+    navigator.clipboard.writeText(hash);
+  }, [hash]);
+  return (0, _preact.h)(_context.Context.Provider, {
+    value: state
+  }, (0, _preact.h)("form", {
+    onSubmit: e => dispatch((0, _actions.generateHash)(e))
+  }, (0, _preact.h)("label", {
+    className: "row",
+    htmlFor: "master-key"
+  }, "Master key", (0, _preact.h)("input", {
+    id: "master-key",
+    type: "password",
+    autoFocus: true,
+    autcomplete: "off",
+    required: true,
+    onInput: changeOption('masterKey'),
+    onChange: () => dispatch((0, _actions.storeKey)()),
+    onFocus: () => dispatch((0, _actions.clearKey)()),
+    value: masterKey
+  })), (0, _preact.h)("label", {
+    className: "row",
+    htmlFor: "site-tag"
+  }, "Site tag", (0, _preact.h)("input", {
+    type: "text",
+    id: "site-tag",
+    list: "saved-sites",
+    required: true,
+    autoComplete: "off",
+    autoCapitalize: "none",
+    autoCorrect: "off",
+    onInput: changeOption('siteTag'),
+    onChange: ({
+      target: {
+        value
+      }
+    }) => dispatch((0, _actions.loadSite)(value)),
+    value: siteTag
+  }), (0, _preact.h)("datalist", {
+    "aria-label": "Saved sites",
+    id: "saved-sites"
+  }, [...sites.keys()].map(siteTag => (0, _preact.h)("option", {
+    value: siteTag,
+    key: siteTag
+  })))), (0, _preact.h)("button", {
+    type: "submit"
+  }, "Generate"), (0, _preact.h)("label", {
+    className: "row",
+    htmlFor: "hash"
+  }, "Hash", (0, _preact.h)("output", {
+    class: "hash",
+    id: "hash",
+    htmlFor: "site-tag",
+    ref: hashRef,
+    tabIndex: 0
+  }, hash), (0, _preact.h)("button", {
+    type: "button",
+    onClick: copyToClipboard,
+    hidden: !hash,
+    "aria-label": "Copy to clipboard",
+    title: "Copy to clipboard"
+  }, "Copy")), (0, _preact.h)("details", {
+    open: showDetails,
+    onToggle: ({
+      target: {
+        open
+      }
+    }) => dispatch((0, _actions.setShowDetails)(open))
+  }, (0, _preact.h)("summary", null, "More options"), (0, _preact.h)("button", {
+    type: "button",
+    onClick: () => dispatch((0, _actions.resetOptions)())
+  }, "Reset"), (0, _preact.h)("button", {
+    type: "button",
+    onClick: () => dispatch((0, _actions.deleteSite)(siteTag)),
+    hidden: !sites.find(({
+      siteTag: t
+    }) => t === siteTag)
+  }, "Delete saved"), (0, _preact.h)("div", {
+    class: "buttons"
+  }, (0, _preact.h)("fieldset", null, (0, _preact.h)("legend", null, "Requirements"), (0, _preact.h)(_checkbox.Checkbox, {
+    label: "Digits",
+    onChange: changeOption('requireDigit', 'checked'),
+    disabled: restrictDigits,
+    checked: requireDigit
+  }), (0, _preact.h)(_checkbox.Checkbox, {
+    label: "Punctuation",
+    onChange: changeOption('requirePunctuation', 'checked'),
+    disabled: restrictDigits || restrictSpecial,
+    checked: requirePunctuation
+  }), (0, _preact.h)(_checkbox.Checkbox, {
+    label: "Mixed case",
+    onChange: changeOption('requireMixedCase', 'checked'),
+    disabled: restrictDigits,
+    checked: requireMixedCase
+  }), (0, _preact.h)(_checkbox.Checkbox, {
+    label: "Bangify",
+    onChange: changeOption('bangify', 'checked'),
+    checked: bangify
+  })), (0, _preact.h)("fieldset", null, (0, _preact.h)("legend", null, "Restrictions"), (0, _preact.h)(_checkbox.Checkbox, {
+    label: "No special",
+    onChange: changeOption('restrictSpecial', 'checked'),
+    disabled: restrictDigits,
+    checked: restrictSpecial
+  }), (0, _preact.h)(_checkbox.Checkbox, {
+    label: "Digits only",
+    onChange: changeOption('restrictDigits', 'checked'),
+    checked: restrictDigits
+  }))), (0, _preact.h)("label", {
+    class: "row"
+  }, "Size", ' ', (0, _preact.h)("output", {
+    htmlFor: "hash-word-size",
+    value: hashWordSize
+  }, hashWordSize), (0, _preact.h)("input", {
+    type: "range",
+    id: "hash-word-size",
+    min: "4",
+    max: "26",
+    step: "2",
+    list: "step-list",
+    onChange: changeOption('hashWordSize', 'valueAsNumber'),
+    value: hashWordSize
+  }), (0, _preact.h)("div", {
+    class: "range-list"
+  }, (0, _preact.h)("span", {
+    class: "range-list__min"
+  }, "4"), (0, _preact.h)("span", {
+    class: "range-list__max"
+  }, "26")), (0, _preact.h)("datalist", {
+    id: "step-list"
+  }, steps.map(step => (0, _preact.h)("option", {
+    key: step
+  }, step)))))));
+}
